@@ -123,6 +123,25 @@
     padding: 4px 24px;
     font-size: 14px;
   }
+
+  .audio-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 14px;
+  }
+
+  .volume-control input[type="range"] {
+    width: 100px;
+  }
 </style>
 </head>
 <body>
@@ -244,7 +263,12 @@ subtle imperfections </p>
       </div>
     </div>
 
-    <button class="play-button" id="playPauseBtn" onclick="toggleAudio()">▶ Play Audio</button>
+    <div class="audio-controls">
+      <button class="play-button" id="playPauseBtn" onclick="toggleAudio()">▶ Play Audio</button>
+      <label class="volume-control" for="volumeSlider">
+        🔊 <input type="range" id="volumeSlider" min="0" max="100" value="50">
+      </label>
+    </div>
   </div>
 
   <audio id="myAudio" src="speech.wav"></audio>
@@ -386,6 +410,13 @@ rows.forEach(scheduleRow);
 
     const audio = document.getElementById('myAudio');
     const playPauseBtn = document.getElementById('playPauseBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+
+    audio.volume = volumeSlider.value / 100; // initialize from slider (default 50%)
+
+    volumeSlider.addEventListener('input', () => {
+      audio.volume = volumeSlider.value / 100;
+    });
 
     function toggleAudio() {
       if (audio.paused) {
