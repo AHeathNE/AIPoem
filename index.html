@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Popup Image Rows</title>
+<link rel="stylesheet" href="https://unpkg.com/98.css">
+<style>
+  :root {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
+    url('images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+ 
+    --row-height: 160px;   /* height of each row's spawn band */
+    --row-overlap: 70px;   /* how much each row overlaps the one below it */
+    --base-size: 350px;    /* image size at scale 1 (front-most row) */
+    --min-scale: 0.35;     /* scale of the back-most row */
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--stage-bg);
+    overflow: hidden;
+    font-family: system-ui, sans-serif;
+  }
+
+  /* ============ CONFIG ============
+     Everything about row count/spacing/scale is driven from JS via
+     CSS custom properties set on .stage / .row, so you rarely need
+     to edit this stylesheet directly. See the CONFIG block in <script>.
+  ================================== */
+
+  .stage {
+    position: relative;
+    width: 130%;
+    margin-left: -15%;      /* bleed 15% off each side */
+    height: 130vh;
+    margin-top: -20vh;      /* bleed off the top (and a bit off the bottom) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .row {
+    position: relative;
+    width: 100%;
+    height: var(--row-height);
+    margin-top: calc(var(--row-overlap) * -1);
+    /* z-index and scale are assigned per-row in JS: rows nearer the
+       bottom of the stack (front) get a higher z-index and scale=1;
+       rows nearer the top (back) get a lower z-index and a smaller scale. */
+  }
+
+  .row:first-child { margin-top: 0; }
+
+  .row:last-child {
+    transform: translateY(50%);
+}
+  .popper {
+    position: absolute;
+    bottom: 0;
+    height: var(--base-size);
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    border-radius: ;
+    box-shadow: ;
+    transform-origin: bottom center;
+    /* --scale is inherited from the parent .row */
+    animation: pop var(--pop-duration, 4s) ease-in-out forwards;
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+
+  @keyframes pop {
+    0%  { transform: scale(var(--scale));               opacity: 1; }
+    82%  { transform: scale(var(--scale));               opacity: 1; }
+    100% { transform: scale(calc(var(--scale) * 0.85)); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .popper { animation-duration: 6s; }
+  }
+
+  /* Wrapper centers the window + button as a group, above the popper stage */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000; /* higher than any .row z-index (max = rowCount) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* let clicks pass through the empty space around it */
+  }
+
+  .overlay > * {
+    pointer-events: auto; /* re-enable interaction on the actual controls */
+  }
+
+  /* 98.css handles the window chrome and button look — we just size/space things */
+  .win98-window {
+    width: 500px;
+    max-width: 90vw;
+  }
+
+  .text-window {
+    height: 300px;
+    overflow-y: auto;
+    line-height: 1.6;
+    background: #ffffff;
+    padding: 8px;
+  }
+
+  .play-button {
+    margin-top: 20px;
+    padding: 4px 24px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="overlay">
+    <div class="window win98-window">
+      <div class="title-bar">
+        <div class="title-bar-text">Please Use AI.txt</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize"></button>
+          <button aria-label="Maximize"></button>
+          <button aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="text-window">
+<pre><p>Please Use AI
+by Shawn Smucker
+
+Be sure to use AI when making
+your next, I don’t know, meal plan,
+for example. Definitely do not call
+your friend who loves to cook and ask her
+for her favorite recipes or tips or ways
+to save time making meals,
+because you will end
+up talking for longer than you had hoped,
+hearing, perhaps, about her father’s cancer
+diagnosis or how lonely she’s been or even
+what she’s planted in her spring
+garden and then lost with the early frost.
+
+And be sure to use AI when planning that next
+camping trip, the last one you will take
+with this particular child. Definitely do
+not text your friend who has fly-fished every
+river in Pennsylvania and biked every
+backwoods trail, because you might end
+up texting back and forth for the rest of the day
+or even meeting up late for a beer and hearing
+how he has ended each recent night black-out
+drunk, or perhaps you’ll hear how his
+cousin is an idiot on Facebook or maybe just
+that he repaired his own washing machine
+and is pretty damn proud of that.
+
+And be sure to use AI when your next child
+gets married, so that you can write them
+the perfect toast or poem or speech or song
+because no one wants to hear your
+words, the actual poorly written words
+of a parent (you) who changed
+hundreds of diapers for said child or fed
+them in the middle of the
+night from your actual body. Or cried
+when they were late home because
+you were positive they were dead. We don't
+want those words—we’d prefer the sterile
+words of a machine that never lived, never
+had an original thought, never felt
+the pain of miscarriage or broken
+relationships or the joy of a friendship restored
+or of seeing spring’s first
+robin dancing on frost.
+
+And be sure to use AI when working on your next
+book or essay or piece of art or photography,
+and then smile or even laugh at your own
+cleverness when you see how good it is,
+and how easy,
+because who the hell has time
+to work at something, to give time to craft, to
+create with their own minds, to spend
+years being mediocre. Why do that when
+mastery, or at least competency
+is so simple
+only a good prompt away?
+
+How magnificent
+the funeral song our children or contemporaries
+will write for us, a song they will make by
+taking our obituary and Facebook posts,
+plus random quotes from our algorithm,
+and feeding them into Chat
+or Gemini
+or Claude.
+The tears that will fall in the face of such
+sanitary sweetness!
+
+Be sure to use AI
+
+and while you do I’ll be over here in my 50th
+year, my youngest daughter asleep on my chest,
+my arm falling asleep because I dare not move
+lest I scare away this moment,
+lying here melancholy about my older
+children moving out and my middle
+children no longer needing me, at least
+not like they used to, weary about this body
+that fails me now in ever increasing ways
+that will never be restored. Sighing
+over stories I tried to write but never hit
+the page the way they felt in my mind.
+
+But isn’t that, my flesh-and-blood friend,
+the natural order of things?
+
+the longing for something that could always be
+a bit better
+
+or the way that anything
+worth doing feels a bit clumsy and painful,
+especially at first
+
+or hearing another human voice and somehow
+realizing the beauty of life is found in all of these
+subtle imperfections </p>
+    </div>
+      </div>
+    </div>
+
+    <button class="play-button" id="playPauseBtn" onclick="toggleAudio()">▶ Play Audio</button>
+  </div>
+
+  <audio id="myAudio" src="speech.wav"></audio>
+
+<div class="stage" id="stage"></div>
+
+<script>
+/* ================= CONFIG ================= */
+const CONFIG = {
+  rowCount: 8,              // number of overlapping rows
+  imagesPerRowRange: [1, 2],// concurrent images spawning per tick, per row
+
+  // Spawn interval and pop duration each interpolate between a "front"
+  // (bottom-of-screen) range and a "back" (top-of-screen) range, the same
+  // way scale does. Back rows get shorter values -> images appear and
+  // leave faster the further up the screen they are.
+  spawnIntervalRange:  { front: [500, 1400], back: [120, 400] },  // ms between spawns
+  popDurationRange:    { front: [3000, 5000], back: [900, 1500] }, // ms visible on screen
+
+  frontScale: 1,            // scale of the frontmost (bottom) row
+  backScale: 0.45,          // scale of the backmost (top) row
+  // Swap this out for your own image collection. All rows pull from
+  // the same pool; only size/z-index differ per row.
+  imagePool: [
+    "images/a1.png",
+    "images/a2.png",
+    "images/a3.png",
+    "images/a4.png",
+    "images/a5.png",
+    "images/a6.png",
+    "images/a7.png",
+    "images/a8.png",
+    "images/a9.png",
+    "images/a10.png",
+    "images/a11.png",
+    "images/a12.png",
+    "images/a13.png",
+    "images/a14.png",
+    "images/a15.png",
+    "images/a16.png",
+    "images/a17.png",
+    "images/a18.png",
+    "images/a19.png",
+    "images/a20.png",
+    "images/a21.png",
+    "images/a22.png",
+    "images/a23.png",
+    "images/a24.png",
+    "images/a25.png",
+    "images/a26.png",
+    "images/a27.png",
+    "images/a28.png",
+    "images/a29.png",
+    "images/a30.png",
+    "images/a31.png",
+    "images/a32.png",
+    "images/a33.png",
+    "images/a34.png",
+    "images/a35.png",
+    "images/a36.png",
+    "images/a37.png",
+    "images/a38.png",
+    "images/a39.png",
+    "images/a40.png",
+    "images/a41.png",
+    "images/a42.png",
+    "images/a43.png",
+    "images/a44.png",
+    "images/a45.png",
+    "images/a46.png",
+    "images/a47.png",
+    "images/a48.png",
+    "images/a49.png",
+    "images/a50.png",
+    "images/a51.png",
+    "images/a52.png",
+    "images/a53.png",
+    "images/a54.png",
+    "images/a55.png",
+  ]
+};
+/* ============================================ */
+
+const stage = document.getElementById('stage');
+
+function rand(min, max) { return Math.random() * (max - min) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function lerp(a, b, t) { return a + (b - a) * t; }
+// Interpolate a [min,max] range between a back range and a front range at position t (0=back, 1=front)
+function lerpRange(backRange, frontRange, t) {
+  return [lerp(backRange[0], frontRange[0], t), lerp(backRange[1], frontRange[1], t)];
+}
+
+// Build rows. Row 0 is rendered first (top of the stack visually = back).
+// Last row is rendered last (bottom of the stack visually = front).
+const rows = [];
+for (let i = 0; i < CONFIG.rowCount; i++) {
+  const row = document.createElement('div');
+  row.className = 'row';
+
+  // Interpolate scale + z-index from back (i=0) to front (i=last)
+  const t = CONFIG.rowCount === 1 ? 1 : i / (CONFIG.rowCount - 1);
+  const scale = CONFIG.backScale + (CONFIG.frontScale - CONFIG.backScale) * t;
+  const zIndex = i + 1; // later rows in DOM order sit further front
+
+  row.style.setProperty('--scale', scale.toFixed(3));
+  row.style.zIndex = zIndex;
+
+  const spawnRange = lerpRange(CONFIG.spawnIntervalRange.back, CONFIG.spawnIntervalRange.front, t);
+  const durationRange = lerpRange(CONFIG.popDurationRange.back, CONFIG.popDurationRange.front, t);
+
+  stage.appendChild(row);
+  rows.push({ el: row, scale, spawnRange, durationRange });
+}
+
+function spawnImage(row) {
+  const img = document.createElement('img');
+  img.className = 'popper';
+  img.src = pick(CONFIG.imagePool);
+  img.style.left = rand(0, 90) + '%';           // random spot along the row
+  img.style.setProperty('--scale', row.scale);
+  const duration = rand(...row.durationRange);
+  img.style.setProperty('--pop-duration', duration + 'ms');
+
+  row.el.appendChild(img);
+  img.addEventListener('animationend', () => img.remove());
+}
+
+function scheduleRow(row) {
+  const delay = rand(...row.spawnRange);
+  setTimeout(() => {
+    const count = Math.round(rand(...CONFIG.imagesPerRowRange));
+    for (let i = 0; i < count; i++) spawnImage(row);
+    scheduleRow(row);
+  }, delay);
+}
+
+rows.forEach(scheduleRow);
+
+    const audio = document.getElementById('myAudio');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+
+    audio.addEventListener('play', () => {
+      playPauseBtn.textContent = '⏸ Pause Audio';
+    });
+
+    audio.addEventListener('pause', () => {
+      playPauseBtn.textContent = '▶ Play Audio';
+    });
+
+    audio.addEventListener('ended', () => {
+      playPauseBtn.textContent = '▶ Play Audio';
+    });
+</script>
+
+</body>
+</html>
